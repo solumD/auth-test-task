@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/solumD/go-service-template/internal/app"
+	"github.com/solumD/auth-test-task/internal/app"
 )
 
 func main() {

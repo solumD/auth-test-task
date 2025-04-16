@@ -4,16 +4,16 @@ import (
 	"context"
 	"log"
 
-	somenameapi "github.com/solumD/go-service-template/internal/api/some_name_api"
-	"github.com/solumD/go-service-template/internal/client/db"
-	"github.com/solumD/go-service-template/internal/client/db/pg"
-	"github.com/solumD/go-service-template/internal/client/db/transaction"
-	"github.com/solumD/go-service-template/internal/closer"
-	"github.com/solumD/go-service-template/internal/config"
-	"github.com/solumD/go-service-template/internal/repository"
-	somereponame "github.com/solumD/go-service-template/internal/repository/some_repo_name"
-	"github.com/solumD/go-service-template/internal/service"
-	someservicename "github.com/solumD/go-service-template/internal/service/some_service_name"
+	somenameapi "github.com/solumD/auth-test-task/internal/api/some_name_api"
+	"github.com/solumD/auth-test-task/internal/client/db"
+	"github.com/solumD/auth-test-task/internal/client/db/pg"
+	"github.com/solumD/auth-test-task/internal/client/db/transaction"
+	"github.com/solumD/auth-test-task/internal/closer"
+	"github.com/solumD/auth-test-task/internal/config"
+	"github.com/solumD/auth-test-task/internal/repository"
+	somereponame "github.com/solumD/auth-test-task/internal/repository/some_repo_name"
+	"github.com/solumD/auth-test-task/internal/service"
+	someservicename "github.com/solumD/auth-test-task/internal/service/some_service_name"
 )
 
 type serviceProvider struct {

@@ -3,9 +3,9 @@ package pg
 import (
 	"context"
 
-	"github.com/solumD/go-service-template/internal/client/db"
-	"github.com/solumD/go-service-template/internal/client/db/prettier"
-	"github.com/solumD/go-service-template/internal/logger"
+	"github.com/solumD/auth-test-task/internal/client/db"
+	"github.com/solumD/auth-test-task/internal/client/db/prettier"
+	"github.com/solumD/auth-test-task/internal/logger"
 	"go.uber.org/zap"
 
 	"github.com/georgysavva/scany/pgxscan"

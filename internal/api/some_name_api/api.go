@@ -1,6 +1,6 @@
 package somenameapi
 
-import "github.com/solumD/go-service-template/internal/service"
+import "github.com/solumD/auth-test-task/internal/service"
 
 // for server or handler
 

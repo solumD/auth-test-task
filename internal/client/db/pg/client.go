@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	"github.com/solumD/go-service-template/internal/client/db"
+	"github.com/solumD/auth-test-task/internal/client/db"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )

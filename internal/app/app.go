@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 
-	"github.com/solumD/go-service-template/internal/closer"
-	"github.com/solumD/go-service-template/internal/config"
+	"github.com/solumD/auth-test-task/internal/closer"
+	"github.com/solumD/auth-test-task/internal/config"
 )
 
 const configPath = ".env"

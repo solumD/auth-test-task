@@ -2,8 +2,8 @@ package service
 
 import "context"
 
-// SomeService interface of something service
-type SomeService interface {
-	// some service methods
-	SomeMethod(ctx context.Context, someArgs ...interface{}) (interface{}, error)
+// AuthService interface of Auth service
+type AuthService interface {
+	GenerateTokens(ctx context.Context, GUID string) (string, string, error)
+	RefreshTokens(ctx context.Context, refreshToken string) (string, error)
 }

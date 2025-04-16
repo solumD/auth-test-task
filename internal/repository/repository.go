@@ -2,8 +2,9 @@ package repository
 
 import "context"
 
-// SomeRepository interface of something repository
-type SomeRepository interface {
-	// some repository methods
-	SomeMethod(ctx context.Context, someArgs ...interface{}) (interface{}, error)
+// AuthRepository interface of auth repository
+type AuthRepository interface {
+	SaveTokensInfo(ctx context.Context, refreshToken string, accessTokenUID string) error
+	GetAcccessTokenUID(ctx context.Context, refreshToken string) (string, error)
+	UpdateTokensInfo(ctx context.Context, refreshToken string) error
 }
