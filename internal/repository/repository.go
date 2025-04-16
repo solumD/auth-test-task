@@ -6,5 +6,5 @@ import "context"
 type AuthRepository interface {
 	SaveTokensInfo(ctx context.Context, refreshToken string, accessTokenUID string) error
 	GetAcccessTokenUID(ctx context.Context, refreshToken string) (string, error)
-	UpdateTokensInfo(ctx context.Context, refreshToken string) error
+	SetRefreshTokenUsed(ctx context.Context, refreshToken string) error
 }

@@ -1,4 +1,4 @@
-package somereponame
+package auth
 
 import (
 	"context"
@@ -88,7 +88,7 @@ func (r *repo) GetAcccessTokenUID(ctx context.Context, refreshToken string) (str
 	return accessTokenUID, nil
 }
 
-func (r *repo) UpdateTokensInfo(ctx context.Context, refreshToken string) error {
+func (r *repo) SetRefreshTokenUsed(ctx context.Context, refreshToken string) error {
 	query, args, err := sq.Update(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Set(isUsedCol, 1).
@@ -100,7 +100,7 @@ func (r *repo) UpdateTokensInfo(ctx context.Context, refreshToken string) error 
 	}
 
 	q := db.Query{
-		Name:     "auth_repository.UpdateTokensInfo",
+		Name:     "auth_repository.SetRefreshTokenUsed",
 		QueryRaw: query,
 	}
 

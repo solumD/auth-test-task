@@ -1,3 +1,9 @@
 package model
 
-// for DTOs
+type Tokens struct {
+	AccessToken string
+	RefreshToken string
+}
+
+
+

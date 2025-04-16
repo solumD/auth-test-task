@@ -8,17 +8,19 @@ import (
 )
 
 type Info struct {
-	AccessTokenUID string
+	UserGUID       string
 	UserIP         string
+	AccessTokenUID string
 }
 
 type Claims struct {
 	jwt.StandardClaims
-	AccessTokenUID string
+	UserGUID       string
 	UserIP         string
+	AccessTokenUID string
 }
 
-// GenerateToken генерирует jwt-access-токен
+// GenerateToken generates jwt-access-token
 func GenerateToken(info *Info, secretKey []byte, duration time.Duration) (string, error) {
 	if info == nil {
 		return "", fmt.Errorf("info is nil")
@@ -27,8 +29,9 @@ func GenerateToken(info *Info, secretKey []byte, duration time.Duration) (string
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(duration).Unix(),
 		},
-		AccessTokenUID: info.AccessTokenUID,
+		UserGUID:       info.UserGUID,
 		UserIP:         info.UserIP,
+		AccessTokenUID: info.AccessTokenUID,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
@@ -36,7 +39,7 @@ func GenerateToken(info *Info, secretKey []byte, duration time.Duration) (string
 	return token.SignedString(secretKey)
 }
 
-// VerifyToken валидирует jwt-токен и возвращает его claims
+// VerifyToken validates jwt-access-token and returns its claims
 func VerifyToken(tokenStr string, secretKey []byte) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(
 		tokenStr,
