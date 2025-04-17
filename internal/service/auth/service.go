@@ -29,11 +29,20 @@ var (
 )
 
 var (
-	ErrJwtGenerationFailure     = errors.New("failed to generate access token")
-	ErrJwtVerificationFailure   = errors.New("failed to verify access token")
-	ErrIPsNotMatch              = errors.New("old and curr user's ip do not match")
+	// ErrJwtGenerationFailure ...
+	ErrJwtGenerationFailure = errors.New("failed to generate access token")
+
+	// ErrJwtVerificationFailure ...
+	ErrJwtVerificationFailure = errors.New("failed to verify access token")
+
+	// ErrIPsNotMatch ...
+	ErrIPsNotMatch = errors.New("old and curr user's ip do not match")
+
+	// ErrAccessTokensUIDsNotMatch ...
 	ErrAccessTokensUIDsNotMatch = errors.New("old and curr access tokens's uid do not match")
-	ErrTokensIsNil              = errors.New(`"tokens" is nil`)
+
+	// ErrTokensIsNil ...
+	ErrTokensIsNil = errors.New(`"tokens" is nil`)
 )
 
 // New returns new auth service object

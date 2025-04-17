@@ -19,6 +19,7 @@ type generateTokensResponse struct {
 }
 
 var (
+	// ErrUserIPFailure ...
 	ErrUserIPFailure = errors.New("failed to get user ip")
 )
 

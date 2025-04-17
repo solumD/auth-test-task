@@ -22,8 +22,13 @@ const (
 )
 
 var (
-	ErrInvalidQuery         = errors.New("failed to create query")
-	ErrExecFailure          = errors.New("failed to exec query")
+	// ErrInvalidQuery ...
+	ErrInvalidQuery = errors.New("failed to create query")
+
+	// ErrExecFailure ...
+	ErrExecFailure = errors.New("failed to exec query")
+
+	// ErrRefreshTokenNotExist ...
 	ErrRefreshTokenNotExist = errors.New("refresh token not exists or was already used")
 )
 
