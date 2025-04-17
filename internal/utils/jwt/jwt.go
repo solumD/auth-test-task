@@ -25,6 +25,7 @@ func GenerateToken(info *Info, secretKey []byte, duration time.Duration) (string
 	if info == nil {
 		return "", fmt.Errorf("info is nil")
 	}
+
 	claims := Claims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(duration).Unix(),

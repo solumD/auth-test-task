@@ -7,37 +7,37 @@ import (
 
 var globalLogger *zap.Logger
 
-// Init инициализирует глобальный логгер
+// Init initializes global logger
 func Init(core zapcore.Core, options ...zap.Option) {
 	globalLogger = zap.New(core, options...)
 }
 
-// Debug обертка над методом
+// Debug method wrapper
 func Debug(msg string, fields ...zap.Field) {
 	globalLogger.Debug(msg, fields...)
 }
 
-// Info обертка над методом
+// Info method wrapper
 func Info(msg string, fields ...zap.Field) {
 	globalLogger.Info(msg, fields...)
 }
 
-// Warn обертка над методом
+// Warn method wrapper
 func Warn(msg string, fields ...zap.Field) {
 	globalLogger.Warn(msg, fields...)
 }
 
-// Error обертка над методом
+// Error method wrapper
 func Error(msg string, fields ...zap.Field) {
 	globalLogger.Error(msg, fields...)
 }
 
-// Fatal обертка над методом
+// Fatal method wrapper
 func Fatal(msg string, fields ...zap.Field) {
 	globalLogger.Fatal(msg, fields...)
 }
 
-// WithOptions обертка над методом
+// WithOptions method wrapper
 func WithOptions(opts ...zap.Option) *zap.Logger {
 	return globalLogger.WithOptions(opts...)
 }
