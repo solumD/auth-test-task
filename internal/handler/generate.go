@@ -39,6 +39,8 @@ func (h *Handler) GenerateTokens(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
+		logger.Info("GenerateTokens request recieved", zap.String("guid", guid))
+
 		tokens, err := h.authService.GenerateTokens(ctx, guid, userIP)
 		if err != nil {
 			logger.Error(err.Error())

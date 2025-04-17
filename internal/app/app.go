@@ -9,7 +9,9 @@ import (
 	"github.com/solumD/auth-test-task/internal/closer"
 	"github.com/solumD/auth-test-task/internal/config"
 	"github.com/solumD/auth-test-task/internal/logger"
+	mwLogger "github.com/solumD/auth-test-task/internal/middleware"
 
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -76,6 +78,13 @@ func (a *App) initServiceProvider() {
 // initServer inits router and routes of a server
 func (a *App) initServer(ctx context.Context) {
 	router := chi.NewRouter()
+
+	router.Use(mwLogger.New())
+
+	// иниализируем вспомогательные middleware
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.URLFormat)
 
 	router.Route("/token", func(r chi.Router) {
 		r.Get("/generate", a.serviceProvider.Handler(ctx).GenerateTokens(ctx))

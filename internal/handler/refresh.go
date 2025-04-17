@@ -50,6 +50,8 @@ func (h *Handler) RefreshTokens(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
+		logger.Info("RefreshTokens request recieved", zap.Any("request", req))
+
 		t := &model.Tokens{
 			AccessToken:  req.AccessToken,
 			RefreshToken: req.RefreshToken,
