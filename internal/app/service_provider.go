@@ -6,7 +6,6 @@ import (
 
 	"github.com/solumD/auth-test-task/internal/client/db"
 	"github.com/solumD/auth-test-task/internal/client/db/pg"
-	"github.com/solumD/auth-test-task/internal/client/db/transaction"
 	"github.com/solumD/auth-test-task/internal/closer"
 	"github.com/solumD/auth-test-task/internal/config"
 	"github.com/solumD/auth-test-task/internal/handler"
@@ -14,6 +13,7 @@ import (
 	authRepo "github.com/solumD/auth-test-task/internal/repository/auth"
 	"github.com/solumD/auth-test-task/internal/service"
 	authSrv "github.com/solumD/auth-test-task/internal/service/auth"
+	emailSrv "github.com/solumD/auth-test-task/internal/service/email"
 )
 
 type serviceProvider struct {
@@ -21,12 +21,14 @@ type serviceProvider struct {
 	serverConfig config.ServerConfig
 	loggerConfig config.LoggerConfig
 
-	dbClient  db.Client
-	txManager db.TxManager
+	dbClient db.Client
 
 	authRepository repository.AuthRepository
 	authService    service.AuthService
-	handler        *handler.Handler
+
+	emailService service.EmailService
+
+	handler *handler.Handler
 }
 
 // NewServiceProvider returns new object of service provider
@@ -97,15 +99,6 @@ func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	return s.dbClient
 }
 
-// TxManager initializes transaction manager if it was not initialized yet and returns it
-func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
-	if s.txManager == nil {
-		s.txManager = transaction.NewTransactionManager(s.DBClient(ctx).DB())
-	}
-
-	return s.txManager
-}
-
 // AuthRepository initializes auth repository if it was not initialized yet and returns it
 func (s *serviceProvider) AuthRepository(ctx context.Context) repository.AuthRepository {
 	if s.authRepository == nil {
@@ -115,10 +108,19 @@ func (s *serviceProvider) AuthRepository(ctx context.Context) repository.AuthRep
 	return s.authRepository
 }
 
+// EmailService initializes email service if it was not initialized yet and returns it
+func (s *serviceProvider) EmailService() service.EmailService {
+	if s.emailService == nil {
+		s.emailService = emailSrv.New()
+	}
+
+	return s.emailService
+}
+
 // AuthService initializes auth service if it was not initialized yet and returns it
 func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
 	if s.authService == nil {
-		s.authService = authSrv.New(s.AuthRepository(ctx), s.TxManager(ctx))
+		s.authService = authSrv.New(s.AuthRepository(ctx), s.EmailService())
 	}
 
 	return s.authService

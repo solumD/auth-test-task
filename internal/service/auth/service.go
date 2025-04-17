@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/solumD/auth-test-task/internal/client/db"
 	"github.com/solumD/auth-test-task/internal/logger"
 	"github.com/solumD/auth-test-task/internal/model"
 	"github.com/solumD/auth-test-task/internal/repository"
@@ -20,7 +19,7 @@ import (
 
 type srv struct {
 	authRepository repository.AuthRepository
-	txManager      db.TxManager
+	emailService   service.EmailService
 }
 
 var (
@@ -46,10 +45,10 @@ var (
 )
 
 // New returns new auth service object
-func New(authRepository repository.AuthRepository, txManager db.TxManager) service.AuthService {
+func New(authRepository repository.AuthRepository, emailService service.EmailService) service.AuthService {
 	return &srv{
 		authRepository: authRepository,
-		txManager:      txManager,
+		emailService:   emailService,
 	}
 }
 
@@ -98,6 +97,14 @@ func (s *srv) RefreshTokens(ctx context.Context, tokens *model.Tokens, userIP st
 
 	if claims.UserIP != userIP {
 		logger.Error(ErrIPsNotMatch.Error())
+
+		s.emailService.SendEmail(
+			"medods@email.ru",
+			"someUser@email.ru",
+			"ip change warning",
+			"Dear user, we noticed that your current IP address is different from the main one. Check the security of your account in profile page.",
+		)
+
 		return nil, ErrIPsNotMatch
 	}
 
