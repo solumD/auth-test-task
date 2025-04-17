@@ -44,6 +44,8 @@ func New(authRepository repository.AuthRepository, txManager db.TxManager) servi
 	}
 }
 
+// GenerateTokens validates guid and ip, generates access and refresh token and makes a request
+// in repository to save info
 func (s *srv) GenerateTokens(ctx context.Context, guid string, userIP string) (*model.Tokens, error) {
 	accessTokenUID := uuid.NewString()
 
@@ -73,6 +75,8 @@ func (s *srv) GenerateTokens(ctx context.Context, guid string, userIP string) (*
 	}, nil
 }
 
+// RefreshTokens validates access and refresh tokens, makes a request in repository to get info
+// and generates new pair of them
 func (s *srv) RefreshTokens(ctx context.Context, tokens *model.Tokens, userIP string) (*model.Tokens, error) {
 	if tokens == nil {
 		return nil, ErrTokensIsNil
@@ -88,7 +92,7 @@ func (s *srv) RefreshTokens(ctx context.Context, tokens *model.Tokens, userIP st
 		return nil, ErrIPsNotMatch
 	}
 
-	oldAccessTokenUID, err := s.authRepository.GetAcccessTokenUID(ctx, tokens.RefreshToken)
+	oldAccessTokenUID, err := s.authRepository.GetAccessTokenUID(ctx, tokens.RefreshToken)
 	if err != nil {
 		logger.Error("failed to get old access token uid", zap.Error(err))
 		return nil, err

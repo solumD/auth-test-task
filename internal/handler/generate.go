@@ -22,9 +22,11 @@ var (
 	ErrUserIPFailure = errors.New("failed to get user ip")
 )
 
+// GenerateTokens get's user's guid from params, generates access and
+// refresh tokens and returns them in json
 func (h *Handler) GenerateTokens(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		guid := r.URL.Query().Get("GUID")
+		guid := r.URL.Query().Get("guid")
 		userIP, err := ip.GetIP(r)
 		if err != nil {
 			logger.Error(ErrUserIPFailure.Error(), zap.Error(err))

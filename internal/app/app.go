@@ -72,11 +72,12 @@ func (a *App) initServiceProvider() {
 	a.serviceProvider = NewServiceProvider()
 }
 
+// initServer inits router and routes of a server
 func (a *App) initServer(ctx context.Context) {
 	router := chi.NewRouter()
 
 	router.Route("/token", func(r chi.Router) {
-		r.Get("/generate/{guid}", a.serviceProvider.Handler(ctx).GenerateTokens(ctx))
+		r.Get("/generate", a.serviceProvider.Handler(ctx).GenerateTokens(ctx))
 		r.Post("/refresh", a.serviceProvider.Handler(ctx).RefreshTokens(ctx))
 	})
 
@@ -101,6 +102,7 @@ func (a *App) runServer() error {
 	return nil
 }
 
+// shutdownServer gracefully shutdowns server
 func (a *App) shutdownServer() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

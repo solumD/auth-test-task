@@ -7,12 +7,14 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+// Info is an info about a user
 type Info struct {
 	UserGUID       string
 	UserIP         string
 	AccessTokenUID string
 }
 
+// Claims is jwt token's claims
 type Claims struct {
 	jwt.StandardClaims
 	UserGUID       string

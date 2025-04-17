@@ -22,6 +22,8 @@ type refreshTokensResponse struct {
 	ErrorMsg     string `json:"error_message,omitempty"`
 }
 
+// RefreshTokens get's access and refresh tokens from body, validates them
+// and returns new refreshed pair of access and refresh tokens
 func (h *Handler) RefreshTokens(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userIP, err := ip.GetIP(r)

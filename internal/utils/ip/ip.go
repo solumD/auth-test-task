@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// GetIP get's clients ip address from request
 func GetIP(r *http.Request) (string, error) {
 	ips := r.Header.Get("X-Forwarded-For")
 	splitIps := strings.Split(ips, ",")

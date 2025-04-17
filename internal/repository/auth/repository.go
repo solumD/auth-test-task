@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"github.com/solumD/auth-test-task/internal/client/db"
+	"github.com/solumD/auth-test-task/internal/logger"
 	"github.com/solumD/auth-test-task/internal/repository"
 
 	sq "github.com/Masterminds/squirrel"
@@ -37,6 +38,7 @@ func New(db db.Client) repository.AuthRepository {
 	}
 }
 
+// SaveTokensInfo saves info about refresh and access tokens in storage
 func (r *repo) SaveTokensInfo(ctx context.Context, refreshToken string, accessTokenUID string) error {
 	query, args, err := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
@@ -59,10 +61,11 @@ func (r *repo) SaveTokensInfo(ctx context.Context, refreshToken string, accessTo
 	return nil
 }
 
-func (r *repo) GetAcccessTokenUID(ctx context.Context, refreshToken string) (string, error) {
+// GetAccessTokenUID gets access token's uid by refresh token if exist
+func (r *repo) GetAccessTokenUID(ctx context.Context, refreshToken string) (string, error) {
 	query, args, err := sq.Select(accessTokenUIDCol).
-		PlaceholderFormat(sq.Dollar).
 		From(tableName).
+		PlaceholderFormat(sq.Dollar).
 		Where(sq.And{sq.Eq{refreshTokenCol: refreshToken}, sq.Eq{isUsedCol: 0}}).
 		ToSql()
 
@@ -78,16 +81,18 @@ func (r *repo) GetAcccessTokenUID(ctx context.Context, refreshToken string) (str
 	var accessTokenUID string
 	err = r.db.DB().ScanOneContext(ctx, &accessTokenUID, q, args...)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return "", ErrRefreshTokenNotExist
 		}
 
+		logger.Error(err.Error())
 		return "", ErrExecFailure
 	}
 
 	return accessTokenUID, nil
 }
 
+// SetRefreshTokenUsed sets refresh token used
 func (r *repo) SetRefreshTokenUsed(ctx context.Context, refreshToken string) error {
 	query, args, err := sq.Update(tableName).
 		PlaceholderFormat(sq.Dollar).
