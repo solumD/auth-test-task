@@ -13,7 +13,7 @@ type pgConfig struct {
 	dsn string
 }
 
-// NewPGConfig возвращает новый конфиг Postgres
+// NewPGConfig returns new Postgres config
 func NewPGConfig() (PGConfig, error) {
 	dsn := os.Getenv(dsnEnvName)
 	if len(dsn) == 0 {
@@ -25,7 +25,7 @@ func NewPGConfig() (PGConfig, error) {
 	}, nil
 }
 
-// DSN возвращает полный адрес подключения БД
+// DSN returns full database's connection line
 func (cfg *pgConfig) DSN() string {
 	return cfg.dsn
 }

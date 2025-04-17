@@ -5,13 +5,14 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/go-chi/render"
 	"github.com/solumD/auth-test-task/internal/logger"
 	"github.com/solumD/auth-test-task/internal/utils/ip"
+
+	"github.com/go-chi/render"
 	"go.uber.org/zap"
 )
 
-type GenerateTokenResponse struct {
+type generateTokensResponse struct {
 	AccessToken  string `json:"access_token,omitempty"`
 	RefreshToken string `json:"refresh_token,omitempty"`
 	ErrorMsg     string `json:"error_message,omitempty"`
@@ -29,7 +30,7 @@ func (h *Handler) GenerateTokens(ctx context.Context) http.HandlerFunc {
 			logger.Error(ErrUserIPFailure.Error(), zap.Error(err))
 
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, GenerateTokenResponse{
+			render.JSON(w, r, generateTokensResponse{
 				ErrorMsg: ErrUserIPFailure.Error(),
 			})
 			return
@@ -40,7 +41,7 @@ func (h *Handler) GenerateTokens(ctx context.Context) http.HandlerFunc {
 			logger.Error(err.Error())
 
 			render.Status(r, http.StatusInternalServerError)
-			render.JSON(w, r, GenerateTokenResponse{
+			render.JSON(w, r, generateTokensResponse{
 				ErrorMsg: err.Error(),
 			})
 			return
@@ -48,7 +49,7 @@ func (h *Handler) GenerateTokens(ctx context.Context) http.HandlerFunc {
 
 		logger.Info("generated tokens for user", zap.String("guid", guid), zap.String("ip", userIP))
 		render.Status(r, http.StatusOK)
-		render.JSON(w, r, GenerateTokenResponse{
+		render.JSON(w, r, generateTokensResponse{
 			AccessToken:  tokens.AccessToken,
 			RefreshToken: tokens.RefreshToken,
 		})

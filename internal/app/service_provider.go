@@ -4,16 +4,16 @@ import (
 	"context"
 	"log"
 
-	somenameapi "github.com/solumD/auth-test-task/internal/api/some_name_api"
 	"github.com/solumD/auth-test-task/internal/client/db"
 	"github.com/solumD/auth-test-task/internal/client/db/pg"
 	"github.com/solumD/auth-test-task/internal/client/db/transaction"
 	"github.com/solumD/auth-test-task/internal/closer"
 	"github.com/solumD/auth-test-task/internal/config"
+	"github.com/solumD/auth-test-task/internal/handler"
 	"github.com/solumD/auth-test-task/internal/repository"
-	somereponame "github.com/solumD/auth-test-task/internal/repository/some_repo_name"
+	authRepo "github.com/solumD/auth-test-task/internal/repository/auth"
 	"github.com/solumD/auth-test-task/internal/service"
-	someservicename "github.com/solumD/auth-test-task/internal/service/some_service_name"
+	authSrv "github.com/solumD/auth-test-task/internal/service/auth"
 )
 
 type serviceProvider struct {
@@ -24,9 +24,9 @@ type serviceProvider struct {
 	dbClient  db.Client
 	txManager db.TxManager
 
-	someRepository repository.SomeRepository
-	someService    service.SomeService
-	someAPI        *somenameapi.API
+	authRepository repository.AuthRepository
+	authService    service.AuthService
+	handler        *handler.Handler
 }
 
 // NewServiceProvider returns new object of service provider
@@ -34,7 +34,7 @@ func NewServiceProvider() *serviceProvider {
 	return &serviceProvider{}
 }
 
-// PGConfig initializes Postgres config if it is not initialized yet and returns it
+// PGConfig initializes Postgres config if it was not initialized yet and returns it
 func (s *serviceProvider) PGConfig() config.PGConfig {
 	if s.pgConfig == nil {
 		cfg, err := config.NewPGConfig()
@@ -48,7 +48,7 @@ func (s *serviceProvider) PGConfig() config.PGConfig {
 	return s.pgConfig
 }
 
-// LoggerConfig initializes logger config if it is not initialized yet and returns it
+// LoggerConfig initializes logger config if it was not initialized yet and returns it
 func (s *serviceProvider) LoggerConfig() config.LoggerConfig {
 	if s.loggerConfig == nil {
 		cfg, err := config.NewLoggerConfig()
@@ -62,7 +62,7 @@ func (s *serviceProvider) LoggerConfig() config.LoggerConfig {
 	return s.loggerConfig
 }
 
-// ServerConfig initializes http-server config if it is not initialized yet and returns it
+// ServerConfig initializes http-server config if it was not initialized yet and returns it
 func (s *serviceProvider) ServerConfig() config.ServerConfig {
 	if s.serverConfig == nil {
 		cfg, err := config.NewServerConfig()
@@ -76,7 +76,7 @@ func (s *serviceProvider) ServerConfig() config.ServerConfig {
 	return s.serverConfig
 }
 
-// DBClient initializes database client config if it is not initialized yet and returns it
+// DBClient initializes database client config if it was not initialized yet and returns it
 func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	if s.dbClient == nil {
 		cl, err := pg.New(ctx, s.PGConfig().DSN())
@@ -97,7 +97,7 @@ func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	return s.dbClient
 }
 
-// TxManager initializes transaction manager if it is not initialized yet and returns it
+// TxManager initializes transaction manager if it was not initialized yet and returns it
 func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 	if s.txManager == nil {
 		s.txManager = transaction.NewTransactionManager(s.DBClient(ctx).DB())
@@ -106,29 +106,29 @@ func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 	return s.txManager
 }
 
-// SomeRepository initializes some repository if it is not initialized yet and returns it
-func (s *serviceProvider) SomeRepository(ctx context.Context) repository.SomeRepository {
-	if s.someRepository == nil {
-		s.someRepository = somereponame.New(s.DBClient(ctx))
+// AuthRepository initializes auth repository if it was not initialized yet and returns it
+func (s *serviceProvider) AuthRepository(ctx context.Context) repository.AuthRepository {
+	if s.authRepository == nil {
+		s.authRepository = authRepo.New(s.DBClient(ctx))
 	}
 
-	return s.someRepository
+	return s.authRepository
 }
 
-// SomeService initializes some service if it is not initialized yet and returns it
-func (s *serviceProvider) SomeService(ctx context.Context) service.SomeService {
-	if s.someService == nil {
-		s.someService = someservicename.New(s.SomeRepository(ctx), s.TxManager(ctx))
+// AuthService initializes auth service if it was not initialized yet and returns it
+func (s *serviceProvider) AuthService(ctx context.Context) service.AuthService {
+	if s.authService == nil {
+		s.authService = authSrv.New(s.AuthRepository(ctx), s.TxManager(ctx))
 	}
 
-	return s.someService
+	return s.authService
 }
 
-// SomeAPI initializes some api if it is not initialized yet and returns it
-func (s *serviceProvider) SomeAPI(ctx context.Context) *somenameapi.API {
-	if s.someAPI == nil {
-		s.someAPI = somenameapi.New(s.SomeService(ctx))
+// Handler initializes handler if it was not initialized yet and returns it
+func (s *serviceProvider) Handler(ctx context.Context) *handler.Handler {
+	if s.handler == nil {
+		s.handler = handler.New(s.AuthService(ctx))
 	}
 
-	return s.someAPI
+	return s.handler
 }

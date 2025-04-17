@@ -33,6 +33,7 @@ var (
 	ErrJwtVerificationFailure   = errors.New("failed to verify access token")
 	ErrIPsNotMatch              = errors.New("old and curr user's ip do not match")
 	ErrAccessTokensUIDsNotMatch = errors.New("old and curr access tokens's uid do not match")
+	ErrTokensIsNil              = errors.New(`"tokens" is nil`)
 )
 
 // New returns new auth service object
@@ -73,6 +74,9 @@ func (s *srv) GenerateTokens(ctx context.Context, guid string, userIP string) (*
 }
 
 func (s *srv) RefreshTokens(ctx context.Context, tokens *model.Tokens, userIP string) (*model.Tokens, error) {
+	if tokens == nil {
+		return nil, ErrTokensIsNil
+	}
 	claims, err := jwt.VerifyToken(tokens.AccessToken, []byte(jwtKey))
 	if err != nil {
 		logger.Error(ErrJwtVerificationFailure.Error(), zap.Error(err))
