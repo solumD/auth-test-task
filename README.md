@@ -1,4 +1,4 @@
-# go-service-template
+# auth-test-task
 Тестовое задание от Medods по созданию части сервиса аутентификации.
 ## Использованные технологии и библиотеки.
 Технологии: Docker, Docker-compose, Jwt, PostgreSQL.
