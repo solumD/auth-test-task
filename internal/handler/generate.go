@@ -50,7 +50,7 @@ func (h *Handler) GenerateTokens(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		logger.Info("generated tokens for user", zap.String("guid", guid), zap.String("ip", userIP))
+		logger.Info("generated tokens for user", zap.String("guid", guid))
 		render.Status(r, http.StatusOK)
 		render.JSON(w, r, generateTokensResponse{
 			AccessToken:  tokens.AccessToken,

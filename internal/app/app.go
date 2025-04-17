@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/solumD/auth-test-task/internal/closer"
 	"github.com/solumD/auth-test-task/internal/config"
 	"github.com/solumD/auth-test-task/internal/logger"
+
+	"github.com/go-chi/chi/v5"
 )
 
 const configPath = ".env"

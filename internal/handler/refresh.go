@@ -4,10 +4,11 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go-chi/render"
 	"github.com/solumD/auth-test-task/internal/logger"
 	"github.com/solumD/auth-test-task/internal/model"
 	"github.com/solumD/auth-test-task/internal/utils/ip"
+
+	"github.com/go-chi/render"
 	"go.uber.org/zap"
 )
 
@@ -58,14 +59,14 @@ func (h *Handler) RefreshTokens(ctx context.Context) http.HandlerFunc {
 		if err != nil {
 			logger.Error(err.Error())
 
-			render.Status(r, http.StatusInternalServerError)
+			render.Status(r, http.StatusUnauthorized)
 			render.JSON(w, r, refreshTokensResponse{
 				ErrorMsg: err.Error(),
 			})
 			return
 		}
 
-		logger.Info("refreshed tokens for user", zap.String("ip", userIP))
+		logger.Info("refreshed tokens for user")
 		render.Status(r, http.StatusOK)
 		render.JSON(w, r, refreshTokensResponse{
 			AccessToken:  tokens.AccessToken,

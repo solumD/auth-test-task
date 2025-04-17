@@ -11,6 +11,7 @@ import (
 	"github.com/solumD/auth-test-task/internal/model"
 	"github.com/solumD/auth-test-task/internal/repository"
 	"github.com/solumD/auth-test-task/internal/service"
+	"github.com/solumD/auth-test-task/internal/utils/hash"
 	"github.com/solumD/auth-test-task/internal/utils/jwt"
 
 	"github.com/google/uuid"
@@ -31,14 +32,14 @@ var (
 	// ErrJwtGenerationFailure ...
 	ErrJwtGenerationFailure = errors.New("failed to generate access token")
 
-	// ErrJwtVerificationFailure ...
-	ErrJwtVerificationFailure = errors.New("failed to verify access token")
+	// ErrInvalidJwtToken  ...
+	ErrInvalidJwtToken = errors.New("invalid access token")
 
 	// ErrIPsNotMatch ...
 	ErrIPsNotMatch = errors.New("old and curr user's ip do not match")
 
-	// ErrAccessTokensUIDsNotMatch ...
-	ErrAccessTokensUIDsNotMatch = errors.New("old and curr access tokens's uid do not match")
+	// ErrRefreshTokensNotMatch ...
+	ErrRefreshTokensNotMatch = errors.New("old and curr refresh tokens's do not match")
 
 	// ErrTokensIsNil ...
 	ErrTokensIsNil = errors.New(`"tokens" is nil`)
@@ -77,6 +78,8 @@ func (s *srv) GenerateTokens(ctx context.Context, guid string, userIP string) (*
 		return nil, err
 	}
 
+	logger.Info("saved tokens info in repo")
+
 	return &model.Tokens{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -89,10 +92,11 @@ func (s *srv) RefreshTokens(ctx context.Context, tokens *model.Tokens, userIP st
 	if tokens == nil {
 		return nil, ErrTokensIsNil
 	}
+
 	claims, err := jwt.VerifyToken(tokens.AccessToken, []byte(jwtKey))
 	if err != nil {
-		logger.Error(ErrJwtVerificationFailure.Error(), zap.Error(err))
-		return nil, ErrJwtVerificationFailure
+		logger.Error(ErrInvalidJwtToken.Error(), zap.Error(err))
+		return nil, ErrInvalidJwtToken
 	}
 
 	if claims.UserIP != userIP {
@@ -108,22 +112,25 @@ func (s *srv) RefreshTokens(ctx context.Context, tokens *model.Tokens, userIP st
 		return nil, ErrIPsNotMatch
 	}
 
-	oldAccessTokenUID, err := s.authRepository.GetAccessTokenUID(ctx, tokens.RefreshToken)
+	refreshTokenHash, err := s.authRepository.GetRefreshTokenByAccessUID(ctx, claims.AccessTokenUID)
 	if err != nil {
-		logger.Error("failed to get old access token uid", zap.Error(err))
+		logger.Error("failed to get refresh token hash", zap.Error(err))
 		return nil, err
 	}
 
-	if claims.AccessTokenUID != oldAccessTokenUID {
-		logger.Error(ErrAccessTokensUIDsNotMatch.Error())
-		return nil, ErrAccessTokensUIDsNotMatch
+	logger.Info("got refresh token hash from repo")
+
+	if err := hash.CompareHashAndRaw(tokens.RefreshToken, refreshTokenHash); err != nil {
+		return nil, ErrRefreshTokensNotMatch
 	}
 
-	err = s.authRepository.SetRefreshTokenUsed(ctx, tokens.RefreshToken)
+	err = s.authRepository.SetRefreshTokenUsed(ctx, claims.AccessTokenUID)
 	if err != nil {
 		logger.Error("failed to update tokens info")
 		return nil, err
 	}
+
+	logger.Info("set refresh token used in repo")
 
 	return s.GenerateTokens(ctx, claims.UserGUID, userIP)
 }

@@ -3,13 +3,14 @@ package auth
 import (
 	"context"
 	"errors"
+	"log"
 
-	"github.com/jackc/pgx/v4"
 	"github.com/solumD/auth-test-task/internal/client/db"
-	"github.com/solumD/auth-test-task/internal/logger"
 	"github.com/solumD/auth-test-task/internal/repository"
+	"github.com/solumD/auth-test-task/internal/utils/hash"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v4"
 )
 
 const (
@@ -30,6 +31,9 @@ var (
 
 	// ErrRefreshTokenNotExist ...
 	ErrRefreshTokenNotExist = errors.New("refresh token not exists or was already used")
+
+	// ErrEncryptingFailure ...
+	ErrEncryptingFailure = errors.New("failed to encrypt a string")
 )
 
 type repo struct {
@@ -45,10 +49,15 @@ func New(db db.Client) repository.AuthRepository {
 
 // SaveTokensInfo saves info about refresh and access tokens in storage
 func (r *repo) SaveTokensInfo(ctx context.Context, refreshToken string, accessTokenUID string) error {
+	hashedRefreshToken, err := hash.Encrypt(refreshToken)
+	if err != nil {
+		return ErrEncryptingFailure
+	}
+
 	query, args, err := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Columns(refreshTokenCol, accessTokenUIDCol).
-		Values(refreshToken, accessTokenUID).ToSql()
+		Values(hashedRefreshToken, accessTokenUID).ToSql()
 
 	if err != nil {
 		return ErrInvalidQuery
@@ -66,43 +75,44 @@ func (r *repo) SaveTokensInfo(ctx context.Context, refreshToken string, accessTo
 	return nil
 }
 
-// GetAccessTokenUID gets access token's uid by refresh token if exist
-func (r *repo) GetAccessTokenUID(ctx context.Context, refreshToken string) (string, error) {
-	query, args, err := sq.Select(accessTokenUIDCol).
+// GetRefreshTokenByAccessUID gets refresh token's hash by access token uid if exist
+func (r *repo) GetRefreshTokenByAccessUID(ctx context.Context, accessTokenUID string) (string, error) {
+	query, args, err := sq.Select(refreshTokenCol).
 		From(tableName).
 		PlaceholderFormat(sq.Dollar).
-		Where(sq.And{sq.Eq{refreshTokenCol: refreshToken}, sq.Eq{isUsedCol: 0}}).
+		Where(sq.And{sq.Eq{accessTokenUIDCol: accessTokenUID}, sq.Eq{isUsedCol: 0}}).
 		ToSql()
+
+	log.Println("1231")
 
 	if err != nil {
 		return "", ErrInvalidQuery
 	}
 
 	q := db.Query{
-		Name:     "auth_repository.GetAccessTokenUID",
+		Name:     "auth_repository.GetRefreshTokenByAccessUID",
 		QueryRaw: query,
 	}
 
-	var accessTokenUID string
-	err = r.db.DB().ScanOneContext(ctx, &accessTokenUID, q, args...)
+	var refreshTokenHash string
+	err = r.db.DB().ScanOneContext(ctx, &refreshTokenHash, q, args...)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return "", ErrRefreshTokenNotExist
 		}
 
-		logger.Error(err.Error())
 		return "", ErrExecFailure
 	}
 
-	return accessTokenUID, nil
+	return refreshTokenHash, nil
 }
 
-// SetRefreshTokenUsed sets refresh token used
-func (r *repo) SetRefreshTokenUsed(ctx context.Context, refreshToken string) error {
+// SetRefreshTokenUsed sets refresh token used by accessTokenUID
+func (r *repo) SetRefreshTokenUsed(ctx context.Context, accessTokenUID string) error {
 	query, args, err := sq.Update(tableName).
 		PlaceholderFormat(sq.Dollar).
 		Set(isUsedCol, 1).
-		Where(sq.Eq{refreshTokenCol: refreshToken}).
+		Where(sq.Eq{accessTokenUIDCol: accessTokenUID}).
 		ToSql()
 
 	if err != nil {
